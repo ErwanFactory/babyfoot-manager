@@ -1,29 +1,32 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title>Babyfoot Manager</title>
 
-    </head>
-    <body>
-        <h1>Babyfoot Manager</h1>
-        <!-- <div>
-            <div>
-                <input type="text" placeholder="Joueur 1..." id="player1" />
-                vs
-                <input type="text" placeholder="Joueur 2..." id="player2" />
-            </div>
-            <button type="button">Ajouter</button>
-        </div> -->
+<head>
+    <title>Babyfoot Manager</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <h1>Babyfoot Manager</h1>
+    <div>
         <div>
-            <h3>Parties en cours</h3>
-            <ul id="in-progress-matches">
-
-            </ul>
-            <h3>Parties terminées</h3>
-            <ul id="finished-matches">
-
-            </ul>
+            <input type="text" placeholder="Joueur 1..." id="player1" required />
+            vs
+            <input type="text" placeholder="Joueur 2..." id="player2" required />
         </div>
-        <script src="./script.js"></script>
-    </body>
+        <button type="submit" onclick="createMatch()">Ajouter</button>
+    </div>
+    <div>
+        <h3>Parties en cours</h3>
+        <ul id="in-progress-matches">
+
+        </ul>
+        <h3>Parties terminées</h3>
+        <ul id="finished-matches">
+
+        </ul>
+    </div>
+    <script src="./script.js"></script>
+</body>
+
 </html>
