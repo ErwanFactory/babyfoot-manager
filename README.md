@@ -12,3 +12,15 @@ create table babyfoot_match (id serial primary key not null,
                              finished boolean default false);
 ```
 
+
+
+## Backend
+
+### Dependencies 
+
+`express` : Node HTTP server services
+
+`pg-promise` : Postgre interface for express server
+
+`cors` : Node package to override the [CORS Policy](https://developer.mozilla.org/fr/docs/Web/HTTP/CORS) . Because that project has no purpose to be deployed online in production mode, I'll just let that pack so that the project runs easily on every local environment.
+
