@@ -12,8 +12,6 @@ create table babyfoot_match (id serial primary key not null,
                              finished boolean default false);
 ```
 
-
-
 ## Backend
 
 ### Dependencies 
