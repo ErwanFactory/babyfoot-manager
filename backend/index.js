@@ -1,5 +1,8 @@
+'use-strict';
+
 const express = require('express');
 const dbi = require('./database-interface');
+const cors = require('cors');
 
 const api = {
     port: 3000,
@@ -7,6 +10,7 @@ const api = {
 
 const app = express();
 app.use(express.json())
+app.use(cors());
 
 // READ
 
