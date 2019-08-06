@@ -11,12 +11,10 @@ const errors = {
 module.exports = {
     errors: errors,
 
-    getMatches: function () {
-        return new Promise((resolve, reject) => {
+    getMatches: () =>
+        new Promise((resolve, reject) => {
             db.many('SELECT * FROM babyfoot_match')
-                .then(function (data) {
-                    resolve(data);
-                })
+                .then(data => resolve(data))
                 .catch(function (error) {
                     if (error.code === queryResultErrorCodes.noData) {
                         resolve([]);
@@ -25,15 +23,12 @@ module.exports = {
                         reject(errors.InternalError);
                     }
                 });
-        });
-    },
+        }),
 
-    getMatch: function(matchId) {
-        return new Promise((resolve, reject) => {
+    getMatch: (matchId) =>
+        new Promise((resolve, reject) => {
             db.one(`SELECT * FROM babyfoot_match WHERE id='${matchId}'`)
-                .then(function (data) {
-                    resolve(data);
-                })
+                .then(data => resolve(data))
                 .catch(function (error) {
                     if (error.code === queryResultErrorCodes.noData) {
                         reject(errors.NotFound);
@@ -42,19 +37,39 @@ module.exports = {
                         reject(errors.InternalError);
                     }
                 });
-        });
-    },
+        }),
 
-    createMatch: function (player1, player2) {
-        return new Promise((resolve, reject) => {
+    createMatch: (player1, player2) =>
+        new Promise((resolve, reject) => {
             db.query(`INSERT INTO babyfoot_match(player1, player2) VALUES('${player1}', '${player2}')`)
-            .then(() => {
-                resolve();
-            })
-            .catch((error) => {
-                console.error(error);
-                reject();
-            });
-        });
-    }
+                .then(() => resolve())
+                .catch((error) => {
+                    console.error(error);
+                    reject();
+                });
+        }),
+
+    updateMatch: (id, player1, player2, finished) =>
+        new Promise((resolve, reject) => {
+            var updatePlayer1 = player1 !== undefined ? `player1='${player1}',` : '';
+            var updatePlayer2 = player2 !== undefined ? `player2='${player2}',` : '';
+            var updateFinished = finished !== undefined ? `finished=${finished}` : '';
+
+            db.query(`UPDATE babyfoot_match SET ${ updatePlayer1 } ${ updatePlayer2 } ${ updateFinished } WHERE id=${id}`)
+                .then((data) => resolve(data))
+                .catch((error) => {
+                    console.error(error);
+                    reject();
+                });
+        }),
+
+    deleteMatch: (id) =>
+        new Promise((resolve, reject) => {
+            db.query(`DELETE FROM babyfoot_match WHERE id=${id}`)
+                .then(() => resolve())
+                .catch((error) => {
+                    console.error(error);
+                    reject();
+                });
+        })
 } 
