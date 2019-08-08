@@ -1,18 +1,6 @@
 # babyfoot-manager
 Test technique pour l'entreprise Ideolys (Easilys) - BabyFoot Manager est une application web de type RIA permettant de créer des parties de babyfoot. Sa particularité sera de pouvoir créer des parties de manière collaborative.
 
-## How to use it
-
-### Run backend
-
-``````bash
-$ cd <path/to/project>/backend
-$ npm install
-$ node api-websocket.js
-``````
-
-Once, the backend server is started, you can run with Firefox or Chrome `frontend/index.html`
-
 ## Database
 
 ### Creation
@@ -23,6 +11,34 @@ create table babyfoot_match (id serial primary key not null,
 							 player2 text not null,
                              finished boolean default false);
 ```
+
+# License
+
+GNU GENERAL PUBLIC LICENSE
+
+## How to use it
+
+First of all, create a postgre database and table with the previous SQL script.
+
+### Configuration files
+
+You need to have a configuration file. Which is located at `backend/config.json`
+
+``````json
+{
+    "connectionString" : "postgres://<user name>:<password>@<domain>:<port>/<database name>"
+}
+``````
+
+### Run backend
+
+```bash
+$ cd <path/to/project>/backend
+$ npm install
+$ node api-websocket.js
+```
+
+Once, the backend server is started, you can run the web app (`frontend/index.html`) with Firefox or Chrome.
 
 ## Backend
 
