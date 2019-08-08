@@ -1,9 +1,10 @@
 'use-strict';
 
 var pgp = require('pg-promise')();
+const config = require('./config.json');
 
 const queryResultErrorCodes = pgp.errors.queryResultErrorCode;
-const db = pgp('postgres://postgres:admin@localhost:5432/babyfoot-manager');
+const db = pgp(config.connectionString);
 
 const errors = {
     NotFound: 'not found',
