@@ -1,3 +1,23 @@
-.error {
-    border: 1px solid red;
+body {
+    background-color: lightgrey;
+    margin: 2% 5%;
+}
+
+.babyfoot-manager-app {
+    width: 30rem;
+    margin: 1rem 0;
+}
+
+.form-player {
+    display: initial;
+    width: 10rem;
+}
+
+.matches {
+    display: flex;
+    align-items: center;
+}
+
+.finished-matches span {
+    color: darkgray;
 }
