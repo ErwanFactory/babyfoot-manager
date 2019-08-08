@@ -1,4 +1,4 @@
-/* TYPES */ 
+/* TYPES */
 const EventTypes = {
     Create: 'create',
     Get: 'get',
@@ -10,8 +10,9 @@ const EventTypes = {
 
 /* SERVER INTERFACE */
 
-const url = 'ws://localhost:3000';
-let socket = new WebSocket(url);
+const DOMAIN = 'ws://localhost:3000';
+let socket;
+// socket = new WebSocket(DOMAIN);
 
 const sendEvent = (event, value) => {
     socket.send(JSON.stringify({
@@ -146,11 +147,18 @@ const removeMatch = (id) => {
 
 /* CLIENT BEHAVIOUR */
 
-// When the socket open, get data
-socket.onopen = (e) => sendEvent(EventTypes.Get, {});
+const tryReconnect = () => {
+    document.getElementById('disconnected-warning').style.display = 'initial';
+    tryConnect(DOMAIN);
+};
 
-// When receiving a message from the backend
-socket.onmessage = (event) => {
+const init = () => {
+    document.getElementById('disconnected-warning').style.display = 'none';
+    sendEvent(EventTypes.Get, {});
+    socket.onclose = tryReconnect;
+}
+
+const dispatchEvent = (event) => {
     var data = JSON.parse(event.data);
 
     if (data.event === EventTypes.Create) {
@@ -166,11 +174,25 @@ socket.onmessage = (event) => {
     }
 };
 
-// If the connection is lost, warns the user
-socket.onclose = (e) => {
-    document.getElementById('disconnected-warning').style.display = 'initial';
-};
+const tryConnect = (domain, tries = 10) => {
+    var warningElement = document.getElementById('disconnected-warning');
+    warningElement.style.display = 'initial';
 
-socket.onerror = (error) => {
-    console.error(`[error] ${error.message}`);
-};
+    if (tries == 0) {
+        warningElement.textContent = 'Connexion perdue avec le serveur, veuillez recharger la page.';
+        return;
+    }
+    socket = new WebSocket(domain);
+
+    socket.onerror = () => {
+        console.error(`[${tries}] Could not connect to the server, next attempt in 5s...`);
+        setTimeout(function() {
+            tryConnect(domain, tries - 1);
+        }, 5000);
+    };
+    
+    socket.onopen = init;
+    socket.onmessage = dispatchEvent;
+}
+
+tryConnect(DOMAIN);
