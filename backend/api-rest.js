@@ -14,11 +14,9 @@ app.use(cors());
 
 // READ
 
-app.get('/', function (req, res) {
-    res.send('You are connected to babyfoot manager backend.');
-});
+app.get('/', (req, res) => res.send('You are connected to babyfoot manager backend.'));
 
-app.get('/matches', async function (req, res) {
+app.get('/matches', (req, res) => {
     dbi.getMatches()
         .then(data => res.json(data))
         .catch(() => {
@@ -26,7 +24,7 @@ app.get('/matches', async function (req, res) {
         });
 });
 
-app.get('/matches/:matchId', function (req, res) {
+app.get('/matches/:matchId', (req, res) => {
     dbi.getMatch(req.params.matchId)
         .then(data => res.json(data))
         .catch(error => {
@@ -40,7 +38,7 @@ app.get('/matches/:matchId', function (req, res) {
 
 // CREATE 
 
-app.post('/matches', function (req, res) {
+app.post('/matches', (req, res) => {
     if (req.body.player1 && req.body.player2) {
         dbi.createMatch(req.body.player1, req.body.player2)
             .then(() => res.sendStatus(201))
@@ -51,8 +49,22 @@ app.post('/matches', function (req, res) {
     }
 });
 
+// UPDATE
+
+app.patch('/matches/:matchId', (req, res) => {
+    dbi.updateMatchFinished(req.params.matchId, req.body.player1, req.body.player2, req.body.finished)
+        .then(() => res.sendStatus(200))
+        .catch(() => res.sendStatus(500));
+});
+
+// DELETE
+
+app.delete('/matches/:matchId', (req, res) => {
+    dbi.deleteMatch(req.params.matchId)
+        .then(() => res.sendStatus(200))
+        .catch(() => res.sendStatus(500));
+});
+
 // APP LAUNCHING
 
-app.listen(api.port, function () {
-    console.log(`Listening to port ${api.port}`);
-});
+app.listen(api.port, () => console.log(`Listening to port ${api.port}`));
