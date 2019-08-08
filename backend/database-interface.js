@@ -1,3 +1,5 @@
+'use-strict';
+
 var pgp = require('pg-promise')();
 
 const queryResultErrorCodes = pgp.errors.queryResultErrorCode;
@@ -27,8 +29,22 @@ module.exports = {
 
     getMatch: (matchId) =>
         new Promise((resolve, reject) => {
-            db.one(`SELECT * FROM babyfoot_match WHERE id='${matchId}'`)
+            db.one('SELECT * FROM babyfoot_match WHERE id = $1', [matchId])
                 .then(data => resolve(data))
+                .catch(function (error) {
+                    if (error.code === queryResultErrorCodes.noData) {
+                        reject(errors.NotFound);
+                    } else {
+                        console.error(error);
+                        reject(errors.InternalError);
+                    }
+                });
+        }),
+
+    checkMatchFinished: (matchId) =>
+        new Promise((resolve, reject) => {
+            db.one('SELECT finished FROM babyfoot_match WHERE id = $1', [matchId])
+                .then(data => resolve(data.finished))
                 .catch(function (error) {
                     if (error.code === queryResultErrorCodes.noData) {
                         reject(errors.NotFound);
@@ -41,35 +57,34 @@ module.exports = {
 
     createMatch: (player1, player2) =>
         new Promise((resolve, reject) => {
-            db.query(`INSERT INTO babyfoot_match(player1, player2) VALUES('${player1}', '${player2}')`)
-                .then(() => resolve())
+            db.one('INSERT INTO babyfoot_match(player1, player2) VALUES($1, $2) RETURNING id', [player1, player2])
+                .then((data) => {
+                    console.log(data);
+                    resolve(data.id);
+                })
                 .catch((error) => {
                     console.error(error);
-                    reject();
+                    reject(errors.InternalError);
                 });
         }),
 
-    updateMatch: (id, player1, player2, finished) =>
+    updateMatchFinished: (id, finished) =>
         new Promise((resolve, reject) => {
-            var updatePlayer1 = player1 !== undefined ? `player1='${player1}',` : '';
-            var updatePlayer2 = player2 !== undefined ? `player2='${player2}',` : '';
-            var updateFinished = finished !== undefined ? `finished=${finished}` : '';
-
-            db.query(`UPDATE babyfoot_match SET ${ updatePlayer1 } ${ updatePlayer2 } ${ updateFinished } WHERE id=${id}`)
-                .then((data) => resolve(data))
+            db.query('UPDATE babyfoot_match SET finished = $1 WHERE id = $2', [finished, id])
+                .then(() => resolve())
                 .catch((error) => {
                     console.error(error);
-                    reject();
+                    reject(errors.InternalError);
                 });
         }),
 
     deleteMatch: (id) =>
         new Promise((resolve, reject) => {
-            db.query(`DELETE FROM babyfoot_match WHERE id=${id}`)
+            db.query('DELETE FROM babyfoot_match WHERE id = $1', [id])
                 .then(() => resolve())
                 .catch((error) => {
                     console.error(error);
-                    reject();
+                    reject(errors.InternalError);
                 });
         })
 } 

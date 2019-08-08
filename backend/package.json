@@ -4,14 +4,16 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "GPL",
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.17.1",
-    "pg-promise": "^9.0.0"
+    "pg-promise": "^9.0.0",
+    "uuid": "^3.3.2",
+    "websocket": "^1.0.29"
   },
   "devDependencies": {
     "nodemon": "^1.19.1"

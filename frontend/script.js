@@ -1,50 +1,28 @@
-'use-strict';
-
-/* BACKEND INFORMATIONS */
-
-const backend_url = 'http://localhost:3000';
-const routes = {
-    matches: () => `${backend_url}/matches`,
-    match: (matchId) => `${backend_url}/matches/${matchId}`
+/* TYPES */ 
+const EventTypes = {
+    Create: 'create',
+    Get: 'get',
+    Finish: 'finish',
+    Unfinish: 'unfinish',
+    Delete: 'delete',
+    Error: 'error'
 };
 
-/* BACKEND INTERFACE */
+/* SERVER INTERFACE */
 
-// Get data from the given url and run the callback function when succeeded
-const getData = (url, callback) => {
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', url, true);
-    xhr.responseType = 'json';
-    xhr.onload = function () {
-        var status = xhr.status;
-        if (status === 200) {
-            callback(xhr.response);
-        } else {
-            console.error(`Error ${status} while getting data from the server (${url}) : ${xhr.response}`);
-        }
-    };
-    xhr.send();
+const url = 'ws://localhost:3000';
+let socket = new WebSocket(url);
+
+const sendEvent = (event, value) => {
+    socket.send(JSON.stringify({
+        event: event,
+        value: value
+    }));
 }
 
-// Send to the given url a POST request with the given data as body and run the callback function when succeeded
-const postData = (url, data, callback) => {
-    var xhr = new XMLHttpRequest();
-    xhr.open('POST', routes.matches(), true);
-    xhr.setRequestHeader('Content-type', 'application/json');
-    xhr.onload = function () {
-        var status = xhr.status;
-        if (status === 201) {
-            callback(data);
-        } else {
-            console.error(`Error ${status} while POST sending data to the server (${url}) : ${xhr.response}`);
-        }
-    };
-    xhr.send(JSON.stringify(data));
-}
+/* CONTROLLERS */
 
-/* FORMS */
-
-// Create a match between the entered player1 and player2
+// Checks the form is good, if not inform the user, if it is : it sends the event of creation to the backend
 const createMatch = () => {
     const player1 = document.getElementById('player1');
     const player2 = document.getElementById('player2');
@@ -64,28 +42,25 @@ const createMatch = () => {
         player2.value = '';
         player2.className = '';
 
-        postData(routes.matches(), data, renderMatch);
+        sendEvent(EventTypes.Create, data);
     }
+}
+
+// When the user trigger the finished checkbox, it sends the right event depending on the checkbox is checked or not
+const onCheckChange = (event) => {
+    const id = event.target.parentNode.id;
+    sendEvent(event.target.checked ? EventTypes.Finish : EventTypes.Unfinish, { id: id });
+}
+
+// When the user click on the delete button, it sends the delete event
+const onDeleteClick = (event) => {
+    const id = event.target.parentNode.id;
+    sendEvent(EventTypes.Delete, { id: id });
 }
 
 /* HTML RENDERING */
 
-// Generate an HTML Element which represents a match for the given player1, player2 and isFinished state.
-const generateMatchHtmlElement = (player1, player2, isFinished) => {
-    var li = document.createElement('li');
-    li.classList = ['matches'];
-    if (isFinished) {
-        li.classList.add('finished-matches');
-    }
-    li.textContent = `${player1} vs ${player2}`;
-    // var deleteButton = document.createElement('button');
-    // deleteButton.type = 'button';
-    // deleteButton.textContent = 'Supprimer';
-    // li.appendChild(deleteButton);
-    return li;
-}
-
-// Clear all child of the node with the given id
+// Clears all child of the node with the given id
 const clearAllNodeChild = (id) => {
     var node = document.getElementById(id);
     while (node.lastChild) {
@@ -93,22 +68,109 @@ const clearAllNodeChild = (id) => {
     }
 }
 
-// Render the match in the right list depending on its finished state
-const renderMatch = (match) => {
-    const matchNode = generateMatchHtmlElement(match.player1, match.player2, match.finished);
-    if (match.finished) {
+// Generates an HTML Element which represents a match for the given player1, player2 and isFinished state.
+const generateMatchHtmlElement = (id, player1, player2, isFinished) => {
+    var li = document.createElement('li');
+    li.id = id;
+    li.classList = ['matches'];
+    if (isFinished) {
+        li.classList.add('finished-matches');
+    }
+
+    li.textContent = `${player1} vs ${player2}`;
+
+    // Finish Button
+    var finishCheck = document.createElement('input');
+    finishCheck.type = 'checkbox';
+    finishCheck.checked = isFinished;
+    finishCheck.onchange = onCheckChange;
+    li.appendChild(finishCheck);
+
+    // Delete Button
+    var deleteButton = document.createElement('button');
+    deleteButton.type = 'button';
+    deleteButton.textContent = 'Supprimer';
+    deleteButton.onclick = onDeleteClick;
+    li.appendChild(deleteButton);
+    return li;
+}
+
+// Adds and renders the match in the right list depending on its finished state
+const addMatch = (id, player1, player2, finished) => {
+    const matchNode = generateMatchHtmlElement(id, player1, player2, finished);
+    if (finished) {
         document.getElementById('finished-matches').appendChild(matchNode);
     } else {
         document.getElementById('in-progress-matches').appendChild(matchNode);
     }
 }
 
-// Clear and render every matches in the right list
-const updateMatches = (matches) => {
+// Clears and renders every matches in the right list
+const refreshMatches = (matches) => {
     clearAllNodeChild('in-progress-matches');
     clearAllNodeChild('finished-matches');
-    matches.forEach(match => renderMatch(match));
+    matches.forEach(match => addMatch(match.id, match.player1, match.player2, match.finished));
 }
 
-// When the window is loaded, get all matches and render it
-window.onload = getData(routes.matches(), updateMatches);
+// Updates match, with the given id, position in the DOM to show it as finished
+const finishMatch = (id) => {
+    var matchElement = document.getElementById(id);
+    document.getElementById('in-progress-matches').removeChild(matchElement);
+    matchElement.className = 'finished-matches';
+    matchElement.childNodes.forEach(c => {
+        if (c.type === 'checkbox') {
+            c.checked = true;
+        }
+    });
+    document.getElementById('finished-matches').appendChild(matchElement);
+}
+
+// Updates match, with the given id, position in the DOM to show it as not finished
+const unfinishMatch = (id) => {
+    var matchElement = document.getElementById(id);
+    document.getElementById('finished-matches').removeChild(matchElement);
+    matchElement.className = '';
+    matchElement.childNodes.forEach(c => {
+        if (c.type === 'checkbox') {
+            c.checked = false;
+        }
+    });
+    document.getElementById('in-progress-matches').appendChild(matchElement);
+}
+
+// Remove the match element, with the given id, from the document
+const removeMatch = (id) => {
+    var matchElement = document.getElementById(id);
+    matchElement.remove();
+}
+
+/* CLIENT BEHAVIOUR */
+
+// When the socket open, get data
+socket.onopen = (e) => sendEvent(EventTypes.Get, {});
+
+// When receiving a message from the backend
+socket.onmessage = (event) => {
+    var data = JSON.parse(event.data);
+
+    if (data.event === EventTypes.Create) {
+        addMatch(data.value.id, data.value.player1, data.value.player2, false);
+    } else if (data.event === EventTypes.Get) {
+        refreshMatches(data.value);
+    } else if (data.event === EventTypes.Finish) {
+        finishMatch(data.value.id);
+    } else if (data.event === EventTypes.Unfinish) {
+        unfinishMatch(data.value.id);
+    } else if (data.event === EventTypes.Delete) {
+        removeMatch(data.value.id);
+    }
+};
+
+// If the connection is lost, warns the user
+socket.onclose = (e) => {
+    document.getElementById('disconnected-warning').style.display = 'initial';
+};
+
+socket.onerror = (error) => {
+    console.error(`[error] ${error.message}`);
+};

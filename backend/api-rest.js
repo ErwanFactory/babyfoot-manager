@@ -52,7 +52,7 @@ app.post('/matches', (req, res) => {
 // UPDATE
 
 app.patch('/matches/:matchId', (req, res) => {
-    dbi.updateMatch(req.params.matchId, req.body.player1, req.body.player2, req.body.finished)
+    dbi.updateMatchFinished(req.params.matchId, req.body.player1, req.body.player2, req.body.finished)
         .then(() => res.sendStatus(200))
         .catch(() => res.sendStatus(500));
 });
