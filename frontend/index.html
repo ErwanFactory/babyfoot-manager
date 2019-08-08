@@ -3,28 +3,46 @@
 
 <head>
     <title>Babyfoot Manager</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
-    <h1>Babyfoot Manager</h1>
-    <div class="warning" id="disconnected-warning" style="display:none">Connexion perdue avec le serveur, veuillez recharger la page.</div>
-    <div>
-        <div>
-            <input type="text" placeholder="Joueur 1..." id="player1" required />
-            vs
-            <input type="text" placeholder="Joueur 2..." id="player2" required />
+    <div class="card babyfoot-manager-app">
+        <div class="card-header">
+            <h1>Babyfoot Manager</h1>
         </div>
-        <button type="submit" onclick="createMatch()">Ajouter</button>
+        <div class="card-body">
+            <div class="d-flex align-items-center">
+                <div class="mr-auto">
+                    <input type="text" class="form-control form-player" placeholder="Joueur 1..." id="player1"
+                        required />
+                    vs
+                    <input type="text" class="form-control form-player" placeholder="Joueur 2..." id="player2"
+                        required />
+                </div>
+                <button type="submit" class="btn btn-primary" onclick="createMatch()">Ajouter</button>
+            </div>
+            <div class="mt-2">
+                <h3>Parties en cours (<span id="in-progress-match-count">0</span>)</h3>
+                <ul id="in-progress-matches">
+                </ul>
+                <h3>Parties terminées</h3>
+                <ul id="finished-matches">
+                </ul>
+            </div>
+        </div>
     </div>
-    <div>
-        <h3>Parties en cours</h3>
-        <ul id="in-progress-matches">
-        </ul>
-        <h3>Parties terminées</h3>
-        <ul id="finished-matches">
-        </ul>
+    <div class="alert alert-warning" role="alert" id="disconnected-warning" style="display:none">
+        Connexion perdue avec le serveur. Nous essayons de vous reconnecter.
     </div>
+    <div class="alert alert-danger" role="alert" id="disconnected-danger" style="display:none">
+        Connexion définitivement perdue avec le serveur, veuillez recharger la page.
+    </div>
+
+
     <script src="./script.js"></script>
 </body>
 
