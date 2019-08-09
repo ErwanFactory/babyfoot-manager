@@ -1,6 +1,11 @@
 # babyfoot-manager
 Test technique pour l'entreprise Ideolys (Easilys) - BabyFoot Manager est une application web de type RIA permettant de créer des parties de babyfoot. Sa particularité sera de pouvoir créer des parties de manière collaborative.
 
+## Dependencies
+
+PostgreSQL : [www.postgresql.org/](https://www.postgresql.org/)
+Node : [nodejs.org/](https://nodejs.org/en/)
+
 ## Database
 
 ### Creation
@@ -12,13 +17,13 @@ create table babyfoot_match (id serial primary key not null,
                              finished boolean default false);
 ```
 
-# License
+## License
 
 GNU GENERAL PUBLIC LICENSE
 
 ## How to use it
 
-First of all, create a postgre database and table with the previous SQL script.
+First of all, create a postgresql database and table with the previous SQL script.
 
 ### Configuration files
 
@@ -58,12 +63,12 @@ Once, the backend server is started, you can run the web app (`frontend/index.ht
 
 ``````
 backend/
-	|_ api-rest.js // See legacy part
-	|_ api-websocket.js // Backend main script which starts the websocket server
+	|_ api-rest.js 		 // See legacy part
+	|_ api-websocket.js 	 // Backend main script which starts the websocket server
 	|_ database-interface.js // Database connection & request module
 ``````
 
 ### Legacy
 
-I never used websocket before (didn't know if I would fit well) so when I was prototyping, I developed a Rest API which you can run using `node api-rest.js`.
+I never used websocket before (didn't know if it would be easy to implement) so when I was prototyping, I developed a Rest API which you can run using `node api-rest.js`.
 
